@@ -19,9 +19,9 @@ async def process_new_order(o, log):
     title = "%s Order Submitted" % (order_type)
     if order_type == "Stop":
         direction = "above" if side == "Buy" else "below"
-        content = "%s %f Contracts of %s at Market. Trigger: Last Price @%f and %s. %s" % (side, order_qty, symbol, stop_price, direction, text)
+        content = "%s %d Contracts of %s at Market. Trigger: Last Price @%f and %s. %s" % (side, order_qty, symbol, stop_price, direction, text)
     else:
-        content = "%s %f Contracts of %s at %f. %s" % (side, order_qty, symbol, price, text)
+        content = "%s %d Contracts of %s at %f. %s" % (side, order_qty, symbol, price, text)
 
     await log(title, content)
 
@@ -37,7 +37,23 @@ async def process_restated_order(o, log):
     ex_destination = o["exDestination"]
 
     title = "%s Order Restated" % (order_type)
-    content = "%s %f Contracts of %s at %f. %s" % (side, order_qty, symbol, price, text)
+    content = "%s %d Contracts of %s at %f. %s" % (side, order_qty, symbol, price, text)
+
+    await log(title, content)
+
+
+async def process_trigger_order(o, log):
+    symbol = o["symbol"]
+    price = o["price"]
+    side = o["side"]
+    order_qty = o["orderQty"]
+    order_type = o["ordType"]
+    simple_leaves_qty = o["simpleLeavesQty"]
+    text = o["text"]
+    ex_destination = o["exDestination"]
+
+    title = "Stop Triggered"
+    content = "A stop to %s %d contracts of %s at %f has been triggered. %s" % (side, order_qty, symbol, price, text)
 
     await log(title, content)
 
@@ -56,10 +72,10 @@ async def process_trade_order(o, log):
 
     if order_status == "Filled":
         title = "%s Order Filled" % (order_type) 
-        body = "%f Contracts of %s %s at %f. The order has fully filled. %s" % (order_qty, symbol, side, price, text)
+        body = "%d Contracts of %s %s at %f. The order has fully filled. %s" % (order_qty, symbol, side, price, text)
     elif order_status == "PartiallyFilled":
-        title = "%s %f Contracts %s" % (order_type, last_qty, side)
-        body = "%f Contracts of %s %s at %f. %f contracts remain in the order. %s" % (last_qty, symbol, side, price, leaves_qty, text)
+        title = "%d Contracts %s" % (last_qty, side)
+        body = "%d Contracts of %s %s at %f. %f contracts remain in the order. %s" % (last_qty, symbol, side, price, leaves_qty, text)
 
     content = "%s:%s" % (title, body)
 
@@ -82,9 +98,9 @@ async def process_cancel_order(o, log):
     title = "%s Order Canceled" % (order_type)
     if order_type == "Stop":
         direction = "above" if side == "Buy" else "below"
-        content = "%s %f Contract of %s at Market. Trigger: Last Price @%f and %s. %s" %(side, order_qty, symbol, stop_price, direction, text)
+        content = "%s %d Contract of %s at Market. Trigger: Last Price @%f and %s. %s" %(side, order_qty, symbol, stop_price, direction, text)
     else:
-        content = "%s %f Contract of %s at %f. %s" %(side, order_qty, symbol, price, text)
+        content = "%s %d Contract of %s at %f. %s" %(side, order_qty, symbol, price, text)
 
     await log(title, content)
 
@@ -124,6 +140,8 @@ async def forwarder(endpoint, symbols, api_key, api_secret, discordwebhook):
                     await process_cancel_order(o, log)
                 elif exec_type == "Restated":
                     await process_restated_order(o, log)
+                elif exec_type == "TriggeredOrActivatedBySystem":
+                    await process_trigger_order(o, log)
                 else:
                     logger.warning("unknow order", json.dumps(o))
                 

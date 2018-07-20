@@ -15,7 +15,7 @@ async def process_new_order(o, log):
     text = o["text"]
     ex_destination = o["exDestination"]
 
-    title = "Order Submitted %s" % (order_type)
+    title = "%s Order Submitted" % (order_type)
     content = "Order Submitted: %s %f Contracts of %s at %f. %s" % (side, order_qty, symbol, price, text)
 
     await log(title, content)
@@ -31,7 +31,7 @@ async def process_restated_order(o, log):
     text = o["text"]
     ex_destination = o["exDestination"]
 
-    title = "Order Restated %s" % (order_type)
+    title = "%s Order Restated" % (order_type)
     content = "Order Restated: %s %f Contracts of %s at %f. %s" % (side, order_qty, symbol, price, text)
 
     await log(title, content)
@@ -50,10 +50,10 @@ async def process_trade_order(o, log):
     text = o["text"]
 
     if order_status == "Filled":
-        title = "Order Filled(%s)" % (order_type) 
+        title = "%s Order Filled(%s)" % (order_type) 
         body = "%f Contracts of %s %s at %f. The order has fully filled. %s" % (order_qty, symbol, side, price, text)
     elif order_status == "PartiallyFilled":
-        title = "%f Contracts %s(%s)" % (last_qty, side, order_type)
+        title = "%s %f Contracts %s(%s)" % (order_type, last_qty, side, order_type)
         body = "%f Contracts of %s %s at %f. %f contracts remain in the order. %s" % (last_qty, symbol, side, price, leaves_qty, text)
 
     content = "%s:%s" % (title, body)
@@ -73,7 +73,7 @@ async def process_cancel_order(o, log):
     leaves_qty = o["leavesQty"]    
     text = o['text']
 
-    title = "Order Canceled(%s)" % (order_type)
+    title = "%s Order Canceled" % (order_type)
     content = "Order Canceled: %s %f Contract of %s at %f. %s" %(side, order_qty, symbol, price, text)
 
     await log(title, content)

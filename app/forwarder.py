@@ -10,11 +10,29 @@ async def process_new_order(o, log):
     price = o["price"]
     side = o["side"]
     order_qty = o["orderQty"]
+    order_type = o["ordType"]
     simple_leaves_qty = o["simpleLeavesQty"]
+    text = o["text"]
     ex_destination = o["exDestination"]
 
-    title = "Order Submitted"
-    content = "Order Submitted: %s %f Contracts of %s at %f" % (side, order_qty, symbol, price)
+    title = "Order Submitted %s" % (order_type)
+    content = "Order Submitted: %s %f Contracts of %s at %f. %s" % (side, order_qty, symbol, price, text)
+
+    await log(title, content)
+
+
+async def process_restated_order(o, log):
+    symbol = o["symbol"]
+    price = o["price"]
+    side = o["side"]
+    order_qty = o["orderQty"]
+    order_type = o["ordType"]
+    simple_leaves_qty = o["simpleLeavesQty"]
+    text = o["text"]
+    ex_destination = o["exDestination"]
+
+    title = "Order Restated %s" % (order_type)
+    content = "Order Restated: %s %f Contracts of %s at %f. %s" % (side, order_qty, symbol, price, text)
 
     await log(title, content)
 
@@ -25,16 +43,18 @@ async def process_trade_order(o, log):
     side = o["side"]
     ex_destination = o["exDestination"]
     order_qty = o["orderQty"]
+    order_type = o["ordType"]
     order_status = o["ordStatus"]
     last_qty = o["lastQty"]
     leaves_qty = o["leavesQty"]
+    text = o["text"]
 
     if order_status == "Filled":
-        title = "Order Filled"
-        body = "%f Contracts of %s %s at %f. The order has fully filled" % (order_qty, symbol, side, price)
+        title = "Order Filled(%s)" % (order_type) 
+        body = "%f Contracts of %s %s at %f. The order has fully filled. %s" % (order_qty, symbol, side, price, text)
     elif order_status == "PartiallyFilled":
-        title = "%f Contracts %s" % (last_qty, side)
-        body = "%f Contracts of %s %s at %f. %f contracts remain in the order" % (last_qty, symbol, side, price, leaves_qty)
+        title = "%f Contracts %s(%s)" % (last_qty, side, order_type)
+        body = "%f Contracts of %s %s at %f. %f contracts remain in the order. %s" % (last_qty, symbol, side, price, leaves_qty, text)
 
     content = "%s:%s" % (title, body)
 
@@ -47,18 +67,19 @@ async def process_cancel_order(o, log):
     side = o["side"]
     ex_destination = o["exDestination"]
     order_qty = o["orderQty"]
+    order_type = o["ordType"]
     order_status = o["ordStatus"]
     last_qty = o["lastQty"]
     leaves_qty = o["leavesQty"]    
     text = o['text']
 
-    title = "Order Canceled"
+    title = "Order Canceled(%s)" % (order_type)
     content = "Order Canceled: %s %f Contract of %s at %f. %s" %(side, order_qty, symbol, price, text)
 
     await log(title, content)
 
 
-async def forwader(endpoint, symbols, api_key, api_secret, discordwebhook):
+async def forwarder(endpoint, symbols, api_key, api_secret, discordwebhook):
     async def log(title, content):
         if discordwebhook:
             await discord(discordwebhook, title, content)
@@ -91,6 +112,8 @@ async def forwader(endpoint, symbols, api_key, api_secret, discordwebhook):
                     await process_trade_order(o, log)
                 elif exec_type == "Canceled":
                     await process_cancel_order(o, log)
+                elif exec_type == "Restated":
+                    await process_restated_order(o, log)
                 else:
                     logger.warning("unknow order", json.dumps(o))
                 

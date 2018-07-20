@@ -2,7 +2,7 @@ import asyncio
 
 import click
 
-from fordwader import forwader
+from forwarder import forwarder
 
 
 @click.command()
@@ -24,7 +24,7 @@ from fordwader import forwader
 def main(endpoint, symbol, apikey, apisecret, discordwebhook):
     loop = asyncio.get_event_loop()
     loop.run_until_complete(
-        forwader(endpoint, symbol, apikey, apisecret, discordwebhook))
+        forwarder(endpoint, symbol, apikey, apisecret, discordwebhook))
     loop.close()
 
 

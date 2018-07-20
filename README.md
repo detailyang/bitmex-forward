@@ -5,6 +5,8 @@
 Install requirements as the following:
 
 ```bash
+git clone https://github.com/detailyang/bitmex-forward.git
+cd bitmex-forward
 virtualenv env
 source env/bin/active
 pip install -r requirements.txt

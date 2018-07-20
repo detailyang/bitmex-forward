@@ -66,7 +66,7 @@ async def forwader(endpoint, symbols, api_key, api_secret, discordwebhook):
 
     bm = await BitMEXAsyncWebsocket(endpoint=endpoint, symbols=symbols, api_key=api_key, api_secret=api_secret)
 
-    logger.info("Start up bitmex-fordwader from %s" % (bm.url))
+    logger.info("Start up bitmex-forwarder from %s" % (bm.url))
 
     try:
         while True:

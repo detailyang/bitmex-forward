@@ -9,15 +9,7 @@ from websockets import connect
 import click
 
 from util import generate_nonce, generate_signature
-
-
-logger = logging.getLogger("bitmex")
-logger.setLevel(logging.INFO)
-ch = logging.StreamHandler()
-ch.setLevel(logging.INFO)
-formatter = logging.Formatter("[%(asctime)s %(levelname)s %(filename)s@%(lineno)d]:  %(message)s")
-ch.setFormatter(formatter)
-logger.addHandler(ch)
+from logger import logger
 
 
 class BitMEXAsyncWebsocket:

@@ -14,9 +14,14 @@ async def process_new_order(o, log):
     simple_leaves_qty = o["simpleLeavesQty"]
     text = o["text"]
     ex_destination = o["exDestination"]
+    stop_price = o["stopPx"]
 
     title = "%s Order Submitted" % (order_type)
-    content = "Order Submitted: %s %f Contracts of %s at %f. %s" % (side, order_qty, symbol, price, text)
+    if order_type == "Stop":
+        direction = "above" if side == "buy" else "below"
+        content = "%s %f Contracts of %s at Market. Trigger: Last Price @%f and %s. %s" % (side, order_qty, symbol, stop_price, direction, text)
+    else:
+        content = "%s %f Contracts of %s at %f. %s" % (side, order_qty, symbol, price, text)
 
     await log(title, content)
 
@@ -32,7 +37,7 @@ async def process_restated_order(o, log):
     ex_destination = o["exDestination"]
 
     title = "%s Order Restated" % (order_type)
-    content = "Order Restated: %s %f Contracts of %s at %f. %s" % (side, order_qty, symbol, price, text)
+    content = "%s %f Contracts of %s at %f. %s" % (side, order_qty, symbol, price, text)
 
     await log(title, content)
 
@@ -50,10 +55,10 @@ async def process_trade_order(o, log):
     text = o["text"]
 
     if order_status == "Filled":
-        title = "%s Order Filled(%s)" % (order_type) 
+        title = "%s Order Filled" % (order_type) 
         body = "%f Contracts of %s %s at %f. The order has fully filled. %s" % (order_qty, symbol, side, price, text)
     elif order_status == "PartiallyFilled":
-        title = "%s %f Contracts %s(%s)" % (order_type, last_qty, side, order_type)
+        title = "%s %f Contracts %s" % (order_type, last_qty, side)
         body = "%f Contracts of %s %s at %f. %f contracts remain in the order. %s" % (last_qty, symbol, side, price, leaves_qty, text)
 
     content = "%s:%s" % (title, body)
@@ -74,7 +79,7 @@ async def process_cancel_order(o, log):
     text = o['text']
 
     title = "%s Order Canceled" % (order_type)
-    content = "Order Canceled: %s %f Contract of %s at %f. %s" %(side, order_qty, symbol, price, text)
+    content = "%s %f Contract of %s at %f. %s" %(side, order_qty, symbol, price, text)
 
     await log(title, content)
 

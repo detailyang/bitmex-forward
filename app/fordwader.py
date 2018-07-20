@@ -72,8 +72,6 @@ async def forwader(endpoint, symbols, api_key, api_secret, discordwebhook):
         while True:
             data = await bm.recv()
             msg = json.loads(data)
-            if msg is None:
-               continue
 
             table = msg['table'] if 'table' in msg else None
             action = msg['action'] if 'action' in msg else None

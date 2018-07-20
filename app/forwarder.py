@@ -18,7 +18,7 @@ async def process_new_order(o, log):
 
     title = "%s Order Submitted" % (order_type)
     if order_type == "Stop":
-        direction = "above" if side == "buy" else "below"
+        direction = "above" if side == "Buy" else "below"
         content = "%s %f Contracts of %s at Market. Trigger: Last Price @%f and %s. %s" % (side, order_qty, symbol, stop_price, direction, text)
     else:
         content = "%s %f Contracts of %s at %f. %s" % (side, order_qty, symbol, price, text)
@@ -77,9 +77,14 @@ async def process_cancel_order(o, log):
     last_qty = o["lastQty"]
     leaves_qty = o["leavesQty"]    
     text = o['text']
+    stop_price = o["stopPx"]
 
     title = "%s Order Canceled" % (order_type)
-    content = "%s %f Contract of %s at %f. %s" %(side, order_qty, symbol, price, text)
+    if order_type == "Stop":
+        direction = "above" if side == "Buy" else "below"
+        content = "%s %f Contract of %s at Market. Trigger: Last Price @%f and %s. %s" %(side, order_qty, symbol, stop_price, direction, text)
+    else:
+        content = "%s %f Contract of %s at %f. %s" %(side, order_qty, symbol, price, text)
 
     await log(title, content)
 

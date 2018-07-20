@@ -40,6 +40,7 @@ async def process_trade_order(o, log):
 
     await log(title, content)
 
+
 async def process_cancel_order(o, log):
     symbol = o["symbol"]
     price = o["price"]

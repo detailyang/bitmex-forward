@@ -29,4 +29,4 @@ def main(endpoint, symbol, apikey, apisecret, discordwebhook):
 
 
 if __name__ == '__main__':
-    main(auto_envvar_prefix="BITMEX_FORDWADER")
+    main(auto_envvar_prefix="BITMEX_FORDWARDER")

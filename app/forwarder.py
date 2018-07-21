@@ -75,9 +75,9 @@ async def process_trade_order(o, log):
         body = "%d Contracts of %s %s at %f. The order has fully filled. %s" % (order_qty, symbol, side, price, text)
     elif order_status == "PartiallyFilled":
         title = "%d Contracts %s" % (last_qty, side)
-        body = "%d Contracts of %s %s at %f. %f contracts remain in the order. %s" % (last_qty, symbol, side, price, leaves_qty, text)
+        body = "%d Contracts of %s %s at %f. %d contracts remain in the order. %s" % (last_qty, symbol, side, price, leaves_qty, text)
 
-    content = "%s:%s" % (title, body)
+    content = body
 
     await log(title, content)
 

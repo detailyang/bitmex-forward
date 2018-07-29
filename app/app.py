@@ -1,8 +1,19 @@
 import asyncio
-
 import click
+import requests
+
 
 from forwarder import forwarder
+
+
+def get_bitmex_symbol(endpoint):
+    mainnet = "https://www.bitmex.com/api/bitcoincharts"
+    testnet = "https://testnet.bitmex.com/api/bitcoincharts"
+
+    api = testnet if 'testnet' in endpoint else mainnet
+    r = requests.get(api)
+    data = r.json()
+    return data["all"]
 
 
 @click.command()
@@ -15,13 +26,14 @@ from forwarder import forwarder
     '--symbol',
     '-m',
     multiple=True,
-    required=True,
-    help="bitmex contract symbol")
+    required=False,
+    help="bitmex contract symbol if none it will be all contract")
 @click.option('--apikey', '-k', default=None, help='api key of bitmex.')
 @click.option('--apisecret', '-s', default=None, help="api secret of bitmex")
 @click.option(
     '--discordwebhook', '-d', default=None, help="discord channel webhook")
 def main(endpoint, symbol, apikey, apisecret, discordwebhook):
+    symbol = get_bitmex_symbol(endpoint) if symbol is None else symbol
     loop = asyncio.get_event_loop()
     loop.run_until_complete(
         forwarder(endpoint, symbol, apikey, apisecret, discordwebhook))

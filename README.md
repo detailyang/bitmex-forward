@@ -15,7 +15,7 @@ pip install -r requirements.txt
 # How to use
 Pass the options to app.py as the following:
 ```bash
-python app/app.py --symbol XBTUSD --symbol LTCU18 --symbol ETHXBT --apikey xxxx --apisecret yyyy --discordwebhook https://discordapp.com/api/webhooks/yyy
+python app/app.py --apikey xxxx --apisecret yyyy --discordwebhook https://discordapp.com/api/webhooks/yyy
 --endpoint https://www.bitmex.com/api/v1
 ```
 

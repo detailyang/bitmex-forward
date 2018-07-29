@@ -33,7 +33,7 @@ def get_bitmex_symbol(endpoint):
 @click.option(
     '--discordwebhook', '-d', default=None, help="discord channel webhook")
 def main(endpoint, symbol, apikey, apisecret, discordwebhook):
-    symbol = get_bitmex_symbol(endpoint) if symbol is None else symbol
+    symbol = get_bitmex_symbol(endpoint) if not len(symbol) else symbol
     loop = asyncio.get_event_loop()
     loop.run_until_complete(
         forwarder(endpoint, symbol, apikey, apisecret, discordwebhook))

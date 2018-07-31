@@ -15,8 +15,9 @@ pip install -r requirements.txt
 # How to use
 Pass the options to app.py as the following:
 ```bash
-python app/app.py --apikey xxxx --apisecret yyyy --discordwebhook https://discordapp.com/api/webhooks/yyy
---endpoint https://www.bitmex.com/api/v1
+cp default.json config.json
+vim config.json
+python app/app.py  config.json
 ```
 
 PS: the bitmex apikey should be readonly

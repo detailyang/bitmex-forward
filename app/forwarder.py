@@ -162,6 +162,8 @@ def forwarder(testnet, symbols, accounts, discordwebhook):
 
         logger.debug(json.dumps(data))
 
+        data = data['data']
+
         for o in data:
             exec_type = o["execType"] 
             if exec_type == "New":
@@ -188,7 +190,7 @@ def forwarder(testnet, symbols, accounts, discordwebhook):
 
     for account in accounts:
         name = account['name']
-        bm.subscribe_private_topic(account, "execution", handler=execution_handler)
+        bm.subscribe_private_topic(name, "execution", handler=execution_handler)
 
     while True:
         pass

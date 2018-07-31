@@ -17,12 +17,14 @@ async def process_new_order(channel, o, log):
     ex_destination = o["exDestination"]
     stop_price = o["stopPx"]
 
-    title = "[%s] %s Order Submitted" % (channel, order_type)
+    title = "%s Order Submitted" % (order_type)
     if order_type == "Stop":
         direction = "above" if side == "Buy" else "below"
         content = "%s %d Contracts of %s at Market. Trigger: Last Price @%f and %s. %s" % (side, order_qty, symbol, stop_price, direction, text)
     else:
         content = "%s %d Contracts of %s at %f. %s" % (side, order_qty, symbol, price, text)
+
+    content = "%s: %s" % (channel, content)
 
     await log(title, content)
 
@@ -37,8 +39,9 @@ async def process_restated_order(channel, o, log):
     text = o["text"]
     ex_destination = o["exDestination"]
 
-    title = "[%s] %s Order Restated" % (channel, order_type)
+    title = "%s Order Restated" % (channel, order_type)
     content = "%s %d Contracts of %s at %f. %s" % (side, order_qty, symbol, price, text)
+    content = "%s: %s" % (channel, content)
 
     await log(title, content)
 
@@ -53,8 +56,9 @@ async def process_trigger_order(channel, o, log):
     text = o["text"]
     ex_destination = o["exDestination"]
 
-    title = "[%s] Stop Triggered" % channel
+    title = "Stop Triggered"
     content = "A stop to %s %d contracts of %s at %f has been triggered. %s" % (side, order_qty, symbol, price, text)
+    content = "%s: %s" % (channel, content)
 
     await log(title, content)
 
@@ -72,13 +76,14 @@ async def process_trade_order(channel, o, log):
     text = o["text"]
 
     if order_status == "Filled":
-        title = "[%s] %s Order Filled" % (channel, order_type) 
+        title = "%s Order Filled" % (order_type) 
         body = "%d Contracts of %s %s at %f. The order has fully filled. %s" % (order_qty, symbol, side, price, text)
     elif order_status == "PartiallyFilled":
-        title = "[%s] %d Contracts %s" % (channel, last_qty, side)
+        title = "%d Contracts %s" % (last_qty, side)
         body = "%d Contracts of %s %s at %f. %d contracts remain in the order. %s" % (last_qty, symbol, side, price, leaves_qty, text)
 
     content = body
+    content = "%s: %s" % (channel, content)
 
     await log(title, content)
 
@@ -96,12 +101,14 @@ async def process_cancel_order(channel, o, log):
     text = o['text']
     stop_price = o["stopPx"]
 
-    title = "[%s] %s Order Canceled" % (channel, order_type)
+    title = "%s Order Canceled" % (order_type)
     if order_type == "Stop":
         direction = "above" if side == "Buy" else "below"
         content = "%s %d Contract of %s at Market. Trigger: Last Price @%f and %s. %s" %(side, order_qty, symbol, stop_price, direction, text)
     else:
         content = "%s %d Contract of %s at %f. %s" %(side, order_qty, symbol, price, text)
+
+    content = "%s: %s" % (channel, content)
 
     await log(title, content)
     

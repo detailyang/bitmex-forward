@@ -39,7 +39,7 @@ async def process_restated_order(channel, o, log):
     text = o["text"]
     ex_destination = o["exDestination"]
 
-    title = "%s Order Restated" % (channel, order_type)
+    title = "%s Order Restated" % (order_type)
     content = "%s %d Contracts of %s at %.8f. %s" % (side, order_qty, symbol, price, text)
     content = "%s: %s" % (channel, content)
 

@@ -6,7 +6,7 @@ from logger import logger
 from bitmex_multiplexing_async_websocket import BitmexMultiplexingAsyncWebsocket
 
 
-async def process_new_order(o, log):
+async def process_new_order(channel, o, log):
     symbol = o["symbol"]
     price = o["price"]
     side = o["side"]
@@ -17,7 +17,7 @@ async def process_new_order(o, log):
     ex_destination = o["exDestination"]
     stop_price = o["stopPx"]
 
-    title = "%s Order Submitted" % (order_type)
+    title = "[%s] %s Order Submitted" % (channel, order_type)
     if order_type == "Stop":
         direction = "above" if side == "Buy" else "below"
         content = "%s %d Contracts of %s at Market. Trigger: Last Price @%f and %s. %s" % (side, order_qty, symbol, stop_price, direction, text)
@@ -27,7 +27,7 @@ async def process_new_order(o, log):
     await log(title, content)
 
 
-async def process_restated_order(o, log):
+async def process_restated_order(channel, o, log):
     symbol = o["symbol"]
     price = o["price"]
     side = o["side"]
@@ -37,13 +37,13 @@ async def process_restated_order(o, log):
     text = o["text"]
     ex_destination = o["exDestination"]
 
-    title = "%s Order Restated" % (order_type)
+    title = "[%s] %s Order Restated" % (channel, order_type)
     content = "%s %d Contracts of %s at %f. %s" % (side, order_qty, symbol, price, text)
 
     await log(title, content)
 
 
-async def process_trigger_order(o, log):
+async def process_trigger_order(channel, o, log):
     symbol = o["symbol"]
     price = o["price"]
     side = o["side"]
@@ -53,13 +53,13 @@ async def process_trigger_order(o, log):
     text = o["text"]
     ex_destination = o["exDestination"]
 
-    title = "Stop Triggered"
+    title = "[%s] Stop Triggered" % channel
     content = "A stop to %s %d contracts of %s at %f has been triggered. %s" % (side, order_qty, symbol, price, text)
 
     await log(title, content)
 
 
-async def process_trade_order(o, log):
+async def process_trade_order(channel, o, log):
     symbol = o["symbol"]
     price = o["price"]
     side = o["side"]
@@ -72,10 +72,10 @@ async def process_trade_order(o, log):
     text = o["text"]
 
     if order_status == "Filled":
-        title = "%s Order Filled" % (order_type) 
+        title = "[%s] %s Order Filled" % (channel, order_type) 
         body = "%d Contracts of %s %s at %f. The order has fully filled. %s" % (order_qty, symbol, side, price, text)
     elif order_status == "PartiallyFilled":
-        title = "%d Contracts %s" % (last_qty, side)
+        title = "[%s] %d Contracts %s" % (channel, last_qty, side)
         body = "%d Contracts of %s %s at %f. %d contracts remain in the order. %s" % (last_qty, symbol, side, price, leaves_qty, text)
 
     content = body
@@ -83,7 +83,7 @@ async def process_trade_order(o, log):
     await log(title, content)
 
 
-async def process_cancel_order(o, log):
+async def process_cancel_order(channel, o, log):
     symbol = o["symbol"]
     price = o["price"]
     side = o["side"]
@@ -96,7 +96,7 @@ async def process_cancel_order(o, log):
     text = o['text']
     stop_price = o["stopPx"]
 
-    title = "%s Order Canceled" % (order_type)
+    title = "[%s] %s Order Canceled" % (channel, order_type)
     if order_type == "Stop":
         direction = "above" if side == "Buy" else "below"
         content = "%s %d Contract of %s at Market. Trigger: Last Price @%f and %s. %s" %(side, order_qty, symbol, stop_price, direction, text)
@@ -104,49 +104,6 @@ async def process_cancel_order(o, log):
         content = "%s %d Contract of %s at %f. %s" %(side, order_qty, symbol, price, text)
 
     await log(title, content)
-
-async def forwarder(endpoint, symbols, api_key, api_secret, discordwebhook):
-    async def log(title, content):
-        if discordwebhook:
-            await discord(discordwebhook, title, content)
-        logger.info("%s:%s" % (title, content))
-
-    bm = await BitMEXAsyncWebsocket(endpoint=endpoint, symbols=symbols, api_key=api_key, api_secret=api_secret)
-
-    logger.info("Start up bitmex-forwarder from %s" % (bm.url))
-
-    try:
-        while True:
-            data = await bm.recv()
-            msg = json.loads(data)
-
-            table = msg['table'] if 'table' in msg else None
-            action = msg['action'] if 'action' in msg else None
-            data = msg['data'] if 'data' in msg else None
-
-            # Care about order created canceled and filled only.
-            if action != 'insert' or table != 'execution':
-               continue 
-
-            logger.debug(json.dumps(msg))
-
-            for o in data:
-                exec_type = o["execType"] 
-                if exec_type == "New":
-                    await process_new_order(o, log)
-                elif exec_type == "Trade":
-                    await process_trade_order(o, log)
-                elif exec_type == "Canceled":
-                    await process_cancel_order(o, log)
-                elif exec_type == "Restated":
-                    await process_restated_order(o, log)
-                elif exec_type == "TriggeredOrActivatedBySystem":
-                    await process_trigger_order(o, log)
-                else:
-                    logger.warning("unknow order", json.dumps(o))
-                
-    finally:
-        await bm.close()
     
 
 def forwarder(testnet, symbols, accounts, discordwebhook):
@@ -167,15 +124,15 @@ def forwarder(testnet, symbols, accounts, discordwebhook):
         for o in data:
             exec_type = o["execType"] 
             if exec_type == "New":
-                await process_new_order(o, log)
+                await process_new_order(channel, o, log)
             elif exec_type == "Trade":
-                await process_trade_order(o, log)
+                await process_trade_order(channel, o, log)
             elif exec_type == "Canceled":
-                await process_cancel_order(o, log)
+                await process_cancel_order(channel, o, log)
             elif exec_type == "Restated":
-                await process_restated_order(o, log)
+                await process_restated_order(channel, o, log)
             elif exec_type == "TriggeredOrActivatedBySystem":
-                await process_trigger_order(o, log)
+                await process_trigger_order(channel, o, log)
             else:
                 logger.warning("unknow order", json.dumps(o))
 

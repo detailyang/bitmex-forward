@@ -143,7 +143,7 @@ def forwarder(testnet, symbols, accounts, discordwebhook):
             else:
                 logger.warning("unknow order", json.dumps(o))
 
-    bm = BitmexMultiplexingAsyncWebsocket(testnet=True, logger=logger)
+    bm = BitmexMultiplexingAsyncWebsocket(testnet=testnet, logger=logger)
     for account in accounts:
         name = account['name']
         key = account['key']

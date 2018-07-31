@@ -372,25 +372,25 @@ if __name__ == "__main__":
         def __init__(self):
             pass
 
-        def chat_handler(self, channel, table, data):
+        async def chat_handler(self, channel, table, data):
             print("channel:%s table:%s data:%s" % (channel, table, data))
 
-        def trade_handler(self, channel, table, data):
+        async def trade_handler(self, channel, table, data):
             print("channel:%s table:%s data:%s" % (channel, table, data))
 
-        def announcement_handler(self, channel, table, data):
+        async def announcement_handler(self, channel, table, data):
             print("channel:%s table:%s data:%s" % (channel, table, data))
 
-        def instrument_handler(self, channel, table, data):
+        async def instrument_handler(self, channel, table, data):
             print("channel:%s table:%s data:%s" % (channel, table, data))
 
-        def quote_handler(self, channel, table, data):
+        async def quote_handler(self, channel, table, data):
             print(channel, table, data)
 
-        def order_handler(self, channel, table, data):
+        async def order_handler(self, channel, table, data):
             print(channel, table, data)
 
-        def execution_handler(self, channel, table, data):
+        async def execution_handler(self, channel, table, data):
             print(channel, table, data)
 
     bh = BitmexHandler()

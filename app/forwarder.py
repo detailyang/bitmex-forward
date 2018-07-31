@@ -3,6 +3,7 @@ import json
 from bitmex_async_websocket import BitMEXAsyncWebsocket
 from notifier import discord
 from logger import logger
+from bitmex_multiplexing_async_websocket import BitmexMultiplexingAsyncWebsocket
 
 
 async def process_new_order(o, log):
@@ -104,7 +105,6 @@ async def process_cancel_order(o, log):
 
     await log(title, content)
 
-
 async def forwarder(endpoint, symbols, api_key, api_secret, discordwebhook):
     async def log(title, content):
         if discordwebhook:
@@ -147,3 +147,48 @@ async def forwarder(endpoint, symbols, api_key, api_secret, discordwebhook):
                 
     finally:
         await bm.close()
+    
+
+def forwarder(testnet, symbols, accounts, discordwebhook):
+    async def log(title, content):
+        if discordwebhook:
+            await discord(discordwebhook, title, content)
+        logger.info("%s:%s" % (title, content))
+
+    async def execution_handler(channel, table, data):
+        action = data["action"]
+        if action != 'insert':
+            return
+
+        logger.debug(json.dumps(data))
+
+        for o in data:
+            exec_type = o["execType"] 
+            if exec_type == "New":
+                await process_new_order(o, log)
+            elif exec_type == "Trade":
+                await process_trade_order(o, log)
+            elif exec_type == "Canceled":
+                await process_cancel_order(o, log)
+            elif exec_type == "Restated":
+                await process_restated_order(o, log)
+            elif exec_type == "TriggeredOrActivatedBySystem":
+                await process_trigger_order(o, log)
+            else:
+                logger.warning("unknow order", json.dumps(o))
+
+    bm = BitmexMultiplexingAsyncWebsocket(testnet=True, logger=logger)
+    for account in accounts:
+        name = account['name']
+        key = account['key']
+        secret = account['secret']
+        bm.add_account(name, key, secret)
+
+    bm.open()
+
+    for account in accounts:
+        name = account['name']
+        bm.subscribe_private_topic(account, "execution", handler=execution_handler)
+
+    while True:
+        pass

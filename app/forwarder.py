@@ -147,8 +147,8 @@ async def process_funding_order(channel, o, log):
     stop_price = o["stopPx"]
     exec_comm = o["execComm"] / 100000000
 
-    title = "%s Order" % (order_type)
-    content = "Pay %.8f %s" %(exec_comm, symbol)
+    title = "%s Funding Order" % (symbol)
+    content = "Paid %.8f %s" %(exec_comm, symbol)
 
     content = "%s: %s" % (channel, content)
 

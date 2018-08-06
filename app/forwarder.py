@@ -111,6 +111,26 @@ async def process_cancel_order(channel, o, log):
     content = "%s: %s" % (channel, content)
 
     await log(title, content)
+
+async def process_rejected_order(channel, o, log):
+    symbol = o["symbol"]
+    price = o["price"]
+    side = o["side"]
+    ex_destination = o["exDestination"]
+    order_qty = o["orderQty"]
+    order_type = o["ordType"]
+    order_status = o["ordStatus"]
+    last_qty = o["lastQty"]
+    leaves_qty = o["leavesQty"]    
+    text = o['text']
+    stop_price = o["stopPx"]
+
+    title = "%s Order Rejected" % (order_type)
+    content = text
+
+    content = "%s: %s" % (channel, content)
+
+    await log(title, content)
     
 
 def forwarder(testnet, symbols, accounts, discordwebhook):
@@ -140,6 +160,10 @@ def forwarder(testnet, symbols, accounts, discordwebhook):
                 await process_restated_order(channel, o, log)
             elif exec_type == "TriggeredOrActivatedBySystem":
                 await process_trigger_order(channel, o, log)
+            elif exec_type == "Rejected":
+                await process_rejected_order(channel, o, log)
+            elif exec_type == "Funding":
+                continue
             else:
                 logger.warning("unknow order", json.dumps(o))
 

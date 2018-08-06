@@ -145,7 +145,7 @@ async def process_funding_order(channel, o, log):
     leaves_qty = o["leavesQty"]    
     text = o['text']
     stop_price = o["stopPx"]
-    exec_comm = o["execComm"] / 10000
+    exec_comm = o["execComm"] / 100000000
 
     title = "%s Order" % (order_type)
     content = "Pay %.8f %s" %(exec_comm, symbol)

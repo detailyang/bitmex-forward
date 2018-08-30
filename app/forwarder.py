@@ -202,5 +202,4 @@ def forwarder(testnet, symbols, accounts, discordwebhook):
         name = account['name']
         bm.subscribe_private_topic(name, "execution", handler=execution_handler)
 
-    while True:
-        pass
+    bm.wait()

@@ -105,6 +105,9 @@ class BitmexMultiplexingAsyncWebsocket(object):
         data = r.json()
         return data["all"]
 
+    def wait(self):
+        self.thread.join()
+
     def open(self):
         self.thread = threading.Thread(target=self._open, daemon=True)
         self.thread.start() 
